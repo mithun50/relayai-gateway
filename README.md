@@ -6,10 +6,10 @@ RelayAI finds opencode, runs `opencode serve` in the background, and puts `/v1/c
 
 | | Install | Docs |
 |---|---|---|
-| Python | `pip install relayai-gateway` | [python/README.md](python/README.md) |
-| Node | `npm install -g relayai-gateway` | [node/README.md](node/README.md) |
-| API reference | both | [docs/API.md](docs/API.md) |
-| Changes | both | [CHANGELOG.md](CHANGELOG.md) |
+| Python | `pip install relayai-gateway` | [python/README.md](https://github.com/mithun50/relayai-gateway/blob/main/python/README.md) |
+| Node | `npm install -g relayai-gateway` | [node/README.md](https://github.com/mithun50/relayai-gateway/blob/main/node/README.md) |
+| API reference | both | [docs/API.md](https://github.com/mithun50/relayai-gateway/blob/main/docs/API.md) |
+| Changes | both | [CHANGELOG.md](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md) |
 
 ```bash
 relayai start                         # opencode serve + gateway in the background
@@ -58,13 +58,13 @@ python conformance/run.py --impl node
 python conformance/run.py --impl node --with-claude    # also drives real Claude Code
 ```
 
-Any change to behaviour goes into both implementations and is covered by `conformance/run.py`.
+Any change to behaviour goes into both implementations and is covered by [`conformance/run.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/run.py).
 
-Contributions are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions are welcome: read [CONTRIBUTING.md](https://github.com/mithun50/relayai-gateway/blob/main/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/mithun50/relayai-gateway/blob/main/CODE_OF_CONDUCT.md).
 
 ## Versions
 
-Versions are date based, `YYYY.M.D` (the release day, for example `2026.11.11`), and the same for both packages. What changed in each release is in [CHANGELOG.md](CHANGELOG.md). Releasing: [RELEASING.md](RELEASING.md).
+Versions are date based, `YYYY.M.D` (the release day, for example `2026.11.11`), and the same for both packages. What changed in each release is in [CHANGELOG.md](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md). Releasing: [RELEASING.md](https://github.com/mithun50/relayai-gateway/blob/main/RELEASING.md).
 
 ## License
 

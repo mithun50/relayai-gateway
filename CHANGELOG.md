@@ -24,7 +24,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 - Persistent API key in `~/.relayai/api_key`; state shared between the Python and Node packages.
 - Concurrency limit with a wait queue (429 when busy), per-answer timeout (504), keepalives while streaming, cancellation of the opencode run when a streaming client disconnects.
 - Errors in OpenAI shape on OpenAI routes and Anthropic shape on Anthropic routes, with opencode's messages (such as "Free usage limit reached") passed through as 503.
-- Documentation: package READMEs and a full API reference in `docs/API.md`.
+- Documentation: package READMEs and a full API reference in [`docs/API.md`](https://github.com/mithun50/relayai-gateway/blob/main/docs/API.md).
 - A shared conformance suite run against both implementations, and CI on Linux, macOS and Windows.
 
 ### Known limitations

@@ -2,7 +2,7 @@
 
 Both packages are called `relayai-gateway`, are released together, and share one **date-based version**: `YYYY.M.D`, the day of the release, no zero padding (`2026.11.11`, `2027.1.5`). At most one release per day.
 
-Releases are published by CI (`.github/workflows/release.yml`) when a tag `v<version>` is pushed.
+Releases are published by CI ([`.github/workflows/release.yml`](https://github.com/mithun50/relayai-gateway/blob/main/.github/workflows/release.yml)) when a tag `v<version>` is pushed.
 
 ## Every release
 
@@ -20,7 +20,7 @@ git push origin main v2026.11.11
 
 The workflow then:
 
-1. checks that the tag matches both package versions and that CHANGELOG.md has a section for it;
+1. checks that the tag matches both package versions and that [CHANGELOG.md](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md) has a section for it;
 2. runs the full test matrix (Linux, macOS, Windows; Python 3.8 to 3.13; Node 18 to 22);
 3. builds the wheel, the sdist and the npm tarball;
 4. publishes to PyPI (trusted publishing) and to npm (with provenance);

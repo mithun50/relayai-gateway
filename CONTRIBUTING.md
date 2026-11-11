@@ -1,11 +1,11 @@
 # Contributing to RelayAI
 
-Thanks for helping. This guide covers how the project is built, how to test a change, and how releases work. Everyone taking part agrees to the [Code of Conduct](CODE_OF_CONDUCT.md).
+Thanks for helping. This guide covers how the project is built, how to test a change, and how releases work. Everyone taking part agrees to the [Code of Conduct](https://github.com/mithun50/relayai-gateway/blob/main/CODE_OF_CONDUCT.md).
 
 ## Ways to help
 
 - **Report a bug.** Open an issue with what you ran, what you expected, what happened, and the output of `relayai doctor`. Logs from `~/.relayai/gateway.log` and `~/.relayai/opencode.log` help a lot. Remove your API key and any private prompts first.
-- **Report model results.** Tool calling depends on the model. If you tested a model (see "Testing a real model" below), share which one, your opencode version, and whether plain chat, OpenAI tools and Anthropic tools worked. These results feed the table in `docs/API.md`.
+- **Report model results.** Tool calling depends on the model. If you tested a model (see "Testing a real model" below), share which one, your opencode version, and whether plain chat, OpenAI tools and Anthropic tools worked. These results feed the table in [`docs/API.md`](https://github.com/mithun50/relayai-gateway/blob/main/docs/API.md).
 - **Fix or improve something.** For anything bigger than a small fix, open an issue first to agree on the approach.
 - **Improve the docs.** Corrections and clearer wording are always welcome.
 
@@ -37,7 +37,7 @@ Both packages have the same modules, with the same responsibilities:
 1. **Change both implementations.** The Python and Node packages must behave the same: same endpoints and responses, same CLI commands, flags and messages, same `~/.relayai` file formats. A change that lands in only one of them will not be merged.
 2. **No runtime dependencies.** Python uses only the standard library (3.8+), Node only its built-in modules (18+). Test-only tools are fine.
 3. **Nothing hardcoded about models.** Model lists and defaults always come from opencode.
-4. **Cover it in the conformance suite.** New behaviour gets a check in `conformance/run.py`, which runs against both implementations.
+4. **Cover it in the conformance suite.** New behaviour gets a check in [`conformance/run.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/run.py), which runs against both implementations.
 5. **Keep errors in the right shape.** OpenAI routes return OpenAI-style errors, Anthropic routes return Anthropic-style errors.
 6. **Writing style.** No em dashes or en dashes in code, comments or docs; use commas, colons, parentheses or separate sentences.
 
@@ -76,7 +76,7 @@ python conformance/run.py --impl node
 python conformance/run.py --impl node --with-claude
 ```
 
-The suites use a temporary `RELAYAI_HOME`, so they never touch your own `~/.relayai`. They do not need opencode or network access: `conformance/fake_opencode.py` plays opencode with a scripted model. CI (`.github/workflows/test.yml`) runs all of this on Linux, macOS and Windows, with Python 3.8 to 3.13 and Node 18 to 22.
+The suites use a temporary `RELAYAI_HOME`, so they never touch your own `~/.relayai`. They do not need opencode or network access: [`conformance/fake_opencode.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/fake_opencode.py) plays opencode with a scripted model. CI ([`.github/workflows/test.yml`](https://github.com/mithun50/relayai-gateway/blob/main/.github/workflows/test.yml)) runs all of this on Linux, macOS and Windows, with Python 3.8 to 3.13 and Node 18 to 22.
 
 ## Testing a real model
 
@@ -97,8 +97,8 @@ Send real requests one at a time. opencode's free models are rate limited, and a
 1. Branch from `main`.
 2. Make the change in both packages, with tests.
 3. Run the four test commands above.
-4. Add a line to the `## [Unreleased]` section of `CHANGELOG.md` under **Added**, **Changed**, **Fixed** or **Removed**. Describe it from the user's side ("`relayai chat` reads the prompt from stdin"), not the code's.
-5. Update `docs/API.md` and the READMEs if behaviour or options changed.
+4. Add a line to the `## [Unreleased]` section of [`CHANGELOG.md`](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md) under **Added**, **Changed**, **Fixed** or **Removed**. Describe it from the user's side ("`relayai chat` reads the prompt from stdin"), not the code's.
+5. Update [`docs/API.md`](https://github.com/mithun50/relayai-gateway/blob/main/docs/API.md) and the READMEs if behaviour or options changed.
 6. Open the pull request with a short description of the problem, the change, and how you tested it (including any real models).
 
 ## Versions and releases
@@ -107,8 +107,8 @@ Versions are **date based**: `YYYY.M.D`, the day of the release, with no zero pa
 
 Because the number does not say how big a release is, the changelog does: anything that can break existing users goes under **Changed** or **Removed**, with what to do about it.
 
-Releasing (maintainers): `python scripts/release_version.py`, commit, then push a tag `v<version>`. CI tests, builds and publishes both packages and creates the GitHub release. Details in [RELEASING.md](RELEASING.md).
+Releasing (maintainers): `python scripts/release_version.py`, commit, then push a tag `v<version>`. CI tests, builds and publishes both packages and creates the GitHub release. Details in [RELEASING.md](https://github.com/mithun50/relayai-gateway/blob/main/RELEASING.md).
 
 ## License
 
-By contributing you agree that your contribution is licensed under the [MIT License](LICENSE) of this project.
+By contributing you agree that your contribution is licensed under the [MIT License](https://github.com/mithun50/relayai-gateway/blob/main/LICENSE) of this project.

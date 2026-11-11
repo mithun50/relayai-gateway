@@ -2,7 +2,7 @@
 
 RelayAI serves an **OpenAI-compatible API** and an **Anthropic-compatible API** at the same time, on the same port, with the same key. Behind both is opencode: every model opencode can reach is available through either API, with streaming and tool calling.
 
-This page documents every endpoint, field, event and error. For installing and the `relayai` command, see the package READMEs ([Python](../python/README.md), [Node](../node/README.md)).
+This page documents every endpoint, field, event and error. For installing and the `relayai` command, see the package READMEs ([Python](https://github.com/mithun50/relayai-gateway/blob/main/python/README.md), [Node](https://github.com/mithun50/relayai-gateway/blob/main/node/README.md)).
 
 ## Contents
 
