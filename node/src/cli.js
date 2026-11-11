@@ -1,5 +1,6 @@
 "use strict";
 /** The `relayai` command line tool (same commands and flags as the Python package). */
+const fs = require("node:fs");
 const path = require("node:path");
 const readline = require("node:readline");
 const { spawn } = require("node:child_process");
@@ -176,8 +177,28 @@ function forwardFlags(args) {
   return out;
 }
 
-const out = (s = "") => process.stdout.write(s + "\n");
-const err = (s) => process.stderr.write(`relayai: ${s}\n`);
+/**
+ * Write to stdout/stderr synchronously. process.stdout.write is asynchronous
+ * when stdout is a pipe on Linux, and output still in flight is lost when the
+ * process is stopped (seen with `relayai serve` under CI, and it would bite
+ * systemd, Docker and log collectors too). A direct fd write cannot be lost.
+ */
+function writeSync(fd, text) {
+  const buf = Buffer.from(text);
+  let offset = 0;
+  while (offset < buf.length) {
+    try {
+      offset += fs.writeSync(fd, buf, offset);
+    } catch (e) {
+      if (e.code !== "EAGAIN") {
+        (fd === 1 ? process.stdout : process.stderr).write(buf.subarray(offset)); // last resort
+        return;
+      }
+    }
+  }
+}
+const out = (s = "") => writeSync(1, s + "\n");
+const err = (s) => writeSync(2, `relayai: ${s}\n`);
 
 /** Run fn with a client for the background gateway, or a short-lived private gateway. */
 async function withClient(args, fn, quiet = false) {
@@ -254,6 +275,8 @@ async function cmdServe(args) {
       if (saved && saved.pid === process.pid) state.remove(GATEWAY_STATE);
       out("\nRelayAI stopped.");
       resolve(0);
+      // Everything is closed and written; do not wait for idle keep-alive sockets to time out.
+      setTimeout(() => process.exit(0), 200).unref();
     };
     process.on("SIGINT", stop);
     process.on("SIGTERM", stop);
