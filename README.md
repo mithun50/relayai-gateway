@@ -28,7 +28,7 @@ node/            npm package  "relayai-gateway"   (src/, bin/, index.d.ts, test/
 docs/API.md      full API reference (both endpoints, streaming, errors, integrations)
 scripts/         release_version.py (date-based version for both packages)
 conformance/     shared test suite and a fake opencode, run against both implementations
-.github/         CI: every suite on Linux, macOS and Windows
+.github/         CI: syntax checks on every push, publishing on release tags
 ```
 
 Each implementation has the same modules:
@@ -58,7 +58,7 @@ python conformance/run.py --impl node
 python conformance/run.py --impl node --with-claude    # also drives real Claude Code
 ```
 
-Any change to behaviour goes into both implementations and is covered by [`conformance/run.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/run.py).
+These suites run locally; CI only checks syntax, so run them before every pull request and release. Any change to behaviour goes into both implementations and is covered by [`conformance/run.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/run.py).
 
 Contributions are welcome: read [CONTRIBUTING.md](https://github.com/mithun50/relayai-gateway/blob/main/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/mithun50/relayai-gateway/blob/main/CODE_OF_CONDUCT.md).
 

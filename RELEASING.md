@@ -12,7 +12,13 @@ Releases are published by CI ([`.github/workflows/release.yml`](https://github.c
 python scripts/release_version.py
 python scripts/release_version.py --check
 
-# 3. commit, tag, push
+# 3. run the full test suites locally (CI only checks syntax)
+cd python && python -m unittest discover -s tests && cd ..
+cd node && npm test && cd ..
+python conformance/run.py --impl python
+python conformance/run.py --impl node
+
+# 4. commit, tag, push
 git commit -am "Release 2026.11.11"
 git tag v2026.11.11
 git push origin main v2026.11.11
@@ -21,7 +27,7 @@ git push origin main v2026.11.11
 The workflow then:
 
 1. checks that the tag matches both package versions and that [CHANGELOG.md](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md) has a section for it;
-2. runs the full test matrix (Linux, macOS, Windows; Python 3.8 to 3.14; Node 18 to 22);
+2. runs the syntax checks (every Python file compiles on Python 3.8, every JavaScript file parses on Node 18);
 3. builds the wheel, the sdist and the npm tarball;
 4. publishes to PyPI (trusted publishing) and to npm (with provenance);
 5. creates a GitHub release with the changelog notes and the built files attached.

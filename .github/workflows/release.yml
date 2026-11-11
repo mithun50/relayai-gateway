@@ -46,7 +46,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   test:
-    name: Full test matrix
+    name: Syntax checks
     needs: check
     uses: ./.github/workflows/test.yml
 

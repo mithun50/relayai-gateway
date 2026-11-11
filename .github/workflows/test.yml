@@ -1,80 +1,39 @@
-name: test
+name: syntax
+
+# CI only checks syntax. The full test suites (unit tests and the conformance
+# suite) are run locally before every release; see CONTRIBUTING.md.
 
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
-  workflow_call:      # the release workflow runs this exact matrix before publishing
+  workflow_call:      # the release workflow runs this before publishing
 
 permissions:
   contents: read
 
-concurrency:
-  group: test-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Make the fake opencode executable
-        if: runner.os != 'Windows'
-        run: chmod +x conformance/bin/opencode
-      - name: Python unit tests
-        working-directory: python
-        run: python -m unittest discover -s tests -v
-      - name: Node unit tests
-        working-directory: node
-        run: npm test
-      - name: Conformance (python)
-        run: python conformance/run.py --impl python
-      - name: Conformance (node)
-        run: python conformance/run.py --impl node
-
-  python-versions:
-    # ubuntu-24.04: the newest runner that still has builds of the oldest supported Python (3.8)
+  syntax:
+    # ubuntu-24.04: the newest runner that still has the oldest supported Python (3.8)
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.8", "3.10", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
-      - run: chmod +x conformance/bin/opencode
-      - working-directory: python
-        run: python -m unittest discover -s tests -v
-      - run: python conformance/run.py --impl python
-
-  node-versions:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ["18", "22"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+          python-version: "3.8"      # oldest supported: catches newer-only syntax
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
-      - run: chmod +x conformance/bin/opencode
-      - working-directory: node
-        run: npm test
-      - run: python conformance/run.py --impl node
+          node-version: "18"         # oldest supported: catches newer-only syntax
+      - name: Python files compile on Python 3.8
+        run: python -m compileall -q python/src python/tests conformance scripts
+      - name: JavaScript files parse on Node 18
+        run: |
+          for f in $(git ls-files 'node/*.js'); do
+            node --check "$f" || exit 1
+          done
+          echo "checked $(git ls-files 'node/*.js' | wc -l) files"
+      - name: JSON and version metadata
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('node/package.json', 'utf8'))"
+          python scripts/release_version.py --check
