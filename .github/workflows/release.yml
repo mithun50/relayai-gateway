@@ -71,12 +71,12 @@ jobs:
       - name: Pack the npm package
         working-directory: node
         run: npm pack
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: python-dist
           path: python/dist/
           if-no-files-found: error
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: npm-tarball
           path: node/*.tgz
