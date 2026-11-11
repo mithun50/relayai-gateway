@@ -232,9 +232,7 @@ def main():
         fake.wait(10)
     ok = check("serve banner shows URLs and key", "OpenAI base URL" in out and KEY in out, out[:500])
     if not ok:
-        print("  ---- complete gateway output ----
-" + out + "
-  ---- end ----")
+        print("  ---- complete gateway output ----\n" + out + "\n  ---- end ----", flush=True)
 
     print(f"== {args.impl}: managed opencode, background gateway (start / status / chat / stop)")
     gw_port, oc_port = free_port(), free_port()
