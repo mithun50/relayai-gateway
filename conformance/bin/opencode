@@ -1,0 +1,3 @@
+#!/bin/sh
+# Fake opencode for the conformance tests (POSIX).
+exec python3 "$(dirname "$0")/../fake_opencode.py" "$@"

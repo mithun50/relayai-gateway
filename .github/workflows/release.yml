@@ -1,0 +1,153 @@
+name: release
+
+# Push a tag "v<version>" (for example v2026.11.11) to release both packages.
+# Prepare it with: python scripts/release_version.py && git commit -am "Release <version>"
+#
+# One-time setup (see RELEASING.md):
+#   PyPI: add a trusted publisher for this repo, workflow "release.yml", environment "pypi"
+#   npm:  add an automation token as the repository secret NPM_TOKEN
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check tag, versions and changelog
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: version
+        name: Tag must match both packages and have changelog notes
+        run: |
+          python scripts/release_version.py --check
+          VERSION="${GITHUB_REF_NAME#v}"
+          PKG=$(python -c "import json; print(json.load(open('node/package.json'))['version'])")
+          if [ "$VERSION" != "$PKG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match the package version $PKG"
+            exit 1
+          fi
+          if ! grep -q "^## \[$VERSION\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for $VERSION (run scripts/release_version.py)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Full test matrix
+    needs: check
+    uses: ./.github/workflows/test.yml
+
+  build:
+    name: Build packages
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Build the Python package
+        working-directory: python
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check dist/*
+      - name: Pack the npm package
+        working-directory: node
+        run: npm pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: python/dist/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: node/*.tgz
+          if-no-files-found: error
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/relayai-gateway/${{ needs.check.outputs.version }}/
+    permissions:
+      id-token: write     # trusted publishing: no stored PyPI token
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-npm:
+    name: Publish to npm
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/relayai-gateway/v/${{ needs.check.outputs.version }}
+    permissions:
+      contents: read
+      id-token: write     # signed provenance statement on npm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: https://registry.npmjs.org
+      - name: Publish
+        working-directory: node
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  github-release:
+    name: GitHub release
+    needs: [check, publish-pypi, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: true
+      - name: Release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          {
+            echo
+            echo "Install: \`pip install relayai-gateway==$VERSION\` or \`npm install -g relayai-gateway@$VERSION\`"
+          } >> notes.md
+          cat notes.md
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: gh release create "$GITHUB_REF_NAME" artifacts/* --title "RelayAI $VERSION" --notes-file notes.md --verify-tag

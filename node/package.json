@@ -1,0 +1,51 @@
+{
+  "name": "relayai-gateway",
+  "version": "2026.11.11",
+  "description": "OpenAI and Anthropic compatible API (with tool calling) for the models in opencode. CLI, server and Node SDK.",
+  "keywords": [
+    "opencode",
+    "openai",
+    "anthropic",
+    "llm",
+    "gateway",
+    "proxy",
+    "claude-code",
+    "tool-calling"
+  ],
+  "author": "Mithun Gowda B <mithungowda.b7411@gmail.com> (https://github.com/mithun50)",
+  "license": "MIT",
+  "homepage": "https://github.com/mithun50/relayai-gateway#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mithun50/relayai-gateway.git",
+    "directory": "node"
+  },
+  "bugs": {
+    "url": "https://github.com/mithun50/relayai-gateway/issues"
+  },
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "relayai": "bin/relayai.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

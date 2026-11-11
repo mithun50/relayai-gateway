@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+node_modules/
+*.tgz
+.DS_Store
+
+# superseded single-file scripts, kept locally only
+legacy/
