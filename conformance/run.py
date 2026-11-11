@@ -32,10 +32,11 @@ results = {"pass": 0, "fail": 0}
 def check(name, cond, detail=""):
     if cond:
         results["pass"] += 1
-        print(f"  PASS  {name}")
+        print(f"  PASS  {name}", flush=True)
     else:
         results["fail"] += 1
-        print(f"  FAIL  {name}  {str(detail)[:400]}")
+        print(f"  FAIL  {name}  {str(detail)[:400]}", flush=True)
+    return bool(cond)
 
 
 def free_port():
@@ -229,7 +230,11 @@ def main():
             out = gw.communicate()[0]
         fake.terminate()
         fake.wait(10)
-    check("serve banner shows URLs and key", "OpenAI base URL" in out and KEY in out, out[:500])
+    ok = check("serve banner shows URLs and key", "OpenAI base URL" in out and KEY in out, out[:500])
+    if not ok:
+        print("  ---- complete gateway output ----
+" + out + "
+  ---- end ----")
 
     print(f"== {args.impl}: managed opencode, background gateway (start / status / chat / stop)")
     gw_port, oc_port = free_port(), free_port()

@@ -76,7 +76,7 @@ python conformance/run.py --impl node
 python conformance/run.py --impl node --with-claude
 ```
 
-The suites use a temporary `RELAYAI_HOME`, so they never touch your own `~/.relayai`. They do not need opencode or network access: [`conformance/fake_opencode.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/fake_opencode.py) plays opencode with a scripted model. CI ([`.github/workflows/test.yml`](https://github.com/mithun50/relayai-gateway/blob/main/.github/workflows/test.yml)) runs all of this on Linux, macOS and Windows, with Python 3.8 to 3.13 and Node 18 to 22.
+The suites use a temporary `RELAYAI_HOME`, so they never touch your own `~/.relayai`. They do not need opencode or network access: [`conformance/fake_opencode.py`](https://github.com/mithun50/relayai-gateway/blob/main/conformance/fake_opencode.py) plays opencode with a scripted model. CI ([`.github/workflows/test.yml`](https://github.com/mithun50/relayai-gateway/blob/main/.github/workflows/test.yml)) runs all of this on Linux, macOS and Windows, with Python 3.8 to 3.14 and Node 18 to 22.
 
 ## Testing a real model
 

@@ -5,7 +5,7 @@ name: release
 #
 # One-time setup (see RELEASING.md):
 #   PyPI: add a trusted publisher for this repo, workflow "release.yml", environment "pypi"
-#   npm:  add an automation token as the repository secret NPM_TOKEN
+#   npm:  add a token as the secret NPM_TOKEN of the "npm" environment
 
 on:
   push:

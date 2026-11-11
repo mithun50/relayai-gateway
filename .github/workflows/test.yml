@@ -44,10 +44,12 @@ jobs:
         run: python conformance/run.py --impl node
 
   python-versions:
-    runs-on: ubuntu-latest
+    # ubuntu-24.04: the newest runner that still has builds of the oldest supported Python (3.8)
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-        python: ["3.8", "3.10", "3.13"]
+        python: ["3.8", "3.10", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -61,6 +63,7 @@ jobs:
   node-versions:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         node: ["18", "22"]
     steps:

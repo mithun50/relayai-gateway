@@ -21,7 +21,7 @@ git push origin main v2026.11.11
 The workflow then:
 
 1. checks that the tag matches both package versions and that [CHANGELOG.md](https://github.com/mithun50/relayai-gateway/blob/main/CHANGELOG.md) has a section for it;
-2. runs the full test matrix (Linux, macOS, Windows; Python 3.8 to 3.13; Node 18 to 22);
+2. runs the full test matrix (Linux, macOS, Windows; Python 3.8 to 3.14; Node 18 to 22);
 3. builds the wheel, the sdist and the npm tarball;
 4. publishes to PyPI (trusted publishing) and to npm (with provenance);
 5. creates a GitHub release with the changelog notes and the built files attached.
@@ -45,13 +45,15 @@ Watch it with `gh run watch` or on the repository's Actions tab. If one of the p
 
 1. Sign in at https://www.npmjs.com (two-factor authentication on).
 2. Create a token: profile picture, **Access Tokens**, **Generate New Token**, **Granular Access Token**, with **Read and write** permission for packages (for the very first release it must be allowed to create new packages, so choose "All packages"), and an expiry date you will remember.
-3. Store it as a repository secret:
+3. Store it as a secret of the `npm` environment (only the publish job can read it):
 
    ```bash
-   gh secret set NPM_TOKEN --repo mithun50/relayai-gateway
+   gh secret set NPM_TOKEN --env npm --repo mithun50/relayai-gateway
    ```
 
    (paste the token when asked)
+
+The `pypi` and `npm` environments only accept deployments from tags matching `v*`, so pushes to branches and pull requests can never publish.
 
 After the first release you can narrow the token to the `relayai-gateway` package, or switch npm to trusted publishing in the package settings on npmjs.com and drop the token.
 

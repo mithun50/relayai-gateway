@@ -28,7 +28,7 @@ OpenAI-compatible (`/v1/chat/completions`, `/v1/models`) and Anthropic-compatibl
 - `cd node && npm test`
 - `python conformance/run.py --impl python` and `--impl node` (45 checks each); add `--with-claude` to drive real Claude Code.
 - Run `python -m relayai` from outside the repo root (or install the package); a stray `relayai.py` in the current folder would shadow it.
-- CI: `.github/workflows/test.yml` (Linux, macOS, Windows; Python 3.8 to 3.13; Node 18 to 22).
+- CI: `.github/workflows/test.yml` (Linux, macOS, Windows; Python 3.8 to 3.14; Node 18 to 22).
 
 ## Status
 - 2026-11-11: both packages pass their unit tests and 45/45 conformance checks on Windows against the fake opencode; Python and Node interoperate through `~/.relayai` (start in one, use and stop from the other).
