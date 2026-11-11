@@ -1,6 +1,6 @@
 {
   "name": "relayai-gateway",
-  "version": "2026.11.11",
+  "version": "2026.11.12",
   "description": "OpenAI and Anthropic compatible API (with tool calling) for the models in opencode. CLI, server and Node SDK.",
   "keywords": [
     "opencode",

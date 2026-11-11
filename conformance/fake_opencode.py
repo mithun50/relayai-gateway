@@ -16,6 +16,11 @@ The scripted model:
     required argument set to "Paris")
   - a <tool_result> present: "Tool said: <last result>"
   - a prompt containing "FAIL_QUOTA": the 503 free usage error
+
+FAKE_OPENCODE_WARMUP=<seconds> simulates a slow start: for that long after
+starting, every /api/* path answers 404 LocationNotFoundError while the web UI
+already answers, the way a real opencode 2.x can for a moment. A client that
+guesses the API version from such an answer gets it wrong.
 """
 import base64
 import json
@@ -23,6 +28,7 @@ import os
 import re
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PASSWORD = os.environ.get("OPENCODE_SERVER_PASSWORD", "testpw")
@@ -33,6 +39,12 @@ MODELS = [{"providerID": "fake", "modelID": "toolbot", "enabled": True},
 SESSIONS = {}
 LOCK = threading.Lock()
 STATS = {"created": 0, "deleted": 0}
+STARTED = time.time()
+WARMUP = float(os.environ.get("FAKE_OPENCODE_WARMUP") or 0)
+
+
+def warming_up():
+    return time.time() - STARTED < WARMUP
 
 
 def model_reply(prompt):
@@ -62,6 +74,10 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def _auth(self):
+        if warming_up():
+            self._send(404, {"_tag": "LocationNotFoundError", "location": {"directory": ""},
+                             "message": "location is not loaded yet"})
+            return False
         if self.headers.get("Authorization") != AUTH:
             self._send(401, {"_tag": "UnauthorizedError", "message": "Authentication required"})
             return False

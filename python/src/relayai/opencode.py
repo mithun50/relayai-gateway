@@ -6,6 +6,7 @@ OpencodeManager finds or installs the opencode executable and runs `opencode ser
                 in the background with a generated password.
 """
 import base64
+import http.client
 import json
 import logging
 import os
@@ -106,21 +107,45 @@ class OpencodeClient:
                     continue
                 raise ApiError(502, f"Cannot reach opencode at {self.url} ({reason}). Is `opencode serve` running?",
                                "upstream_unreachable")
+            except http.client.HTTPException as e:
+                # a half-open connection or garbled reply, typically while opencode is starting
+                raise ApiError(502, f"opencode at {self.url} sent an incomplete reply ({type(e).__name__})",
+                               "upstream_unreachable")
 
     # ------------------------------------------------------------ discovery
     def api_version(self):
-        """'v2' for opencode 2.x (routes under /api), else 'v1'. Remembered once known."""
+        """
+        'v2' for opencode 2.x (routes under /api) or 'v1' for opencode 1.x.
+
+        Decided only on positive evidence: 2.x answers GET /api/info with its
+        version, 1.x answers GET /global/health with a JSON object. Any other
+        answer (a web page, a 404, a half-open connection) usually means opencode
+        is still starting, so nothing is remembered and ApiError(503,
+        kind="upstream_starting") is raised; the next call tries again.
+        """
         with self._lock:
             if self._version:
                 return self._version
-        version = "v1"
+        version = None
+        passthrough = ("upstream_unreachable", "upstream_timeout", "upstream_auth")
         try:
             info = self.request("GET", "/api/info", timeout=10, retries=2)
             if isinstance(info, dict) and info.get("version"):
                 version = "v2"
         except ApiError as e:
-            if e.kind in ("upstream_unreachable", "upstream_timeout", "upstream_auth"):
+            if e.kind in passthrough:
                 raise
+        if version is None:
+            try:
+                health = self.request("GET", "/global/health", timeout=10)
+                if isinstance(health, dict):
+                    version = "v1"
+            except ApiError as e:
+                if e.kind in passthrough:
+                    raise
+        if version is None:
+            raise ApiError(503, f"opencode at {self.url} is not ready yet (its API answered neither as "
+                                "opencode 1.x nor as 2.x). Try again in a moment.", "upstream_starting")
         with self._lock:
             self._version = version
         return version
@@ -134,7 +159,7 @@ class OpencodeClient:
         except ApiError as e:
             if e.kind == "upstream_auth":
                 raise
-            if e.kind in ("upstream_unreachable", "upstream_timeout"):
+            if e.kind in ("upstream_unreachable", "upstream_timeout", "upstream_starting"):
                 return False, None
             return True, None
 

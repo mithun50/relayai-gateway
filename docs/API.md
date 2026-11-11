@@ -491,6 +491,7 @@ The official SDKs turn these into their usual exception classes (`openai.NotFoun
 | 502 | `upstream_unreachable` | `api_error` | opencode is not running or not reachable | `relayai doctor` |
 | 502 | `upstream_wrong_path`, `upstream_error` | `api_error` | opencode answered unexpectedly (other opencode version, provider error) | the message has opencode's text |
 | 503 | `upstream_unavailable` | `overloaded_error` | opencode or its provider is unavailable, e.g. `Free usage limit reached` | retry later; connect your own provider in opencode |
+| 503 | `upstream_starting` | `overloaded_error` | opencode is still starting and its API does not answer yet | retry after a few seconds |
 | 504 | `upstream_timeout` | `api_error` | no answer within `RELAYAI_TIMEOUT` (600 s) | raise the timeout or use a faster model |
 
 429 and 5xx errors are safe to retry. The official OpenAI and Anthropic SDKs retry 429, 502, 503 and 504 by themselves (twice by default).

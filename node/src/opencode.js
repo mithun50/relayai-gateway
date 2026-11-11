@@ -112,15 +112,40 @@ class OpencodeClient {
   }
 
   // ------------------------------------------------------------ discovery
-  /** 'v2' for opencode 2.x (routes under /api), else 'v1'. Remembered once known. */
+  /**
+   * 'v2' for opencode 2.x (routes under /api) or 'v1' for opencode 1.x.
+   *
+   * Decided only on positive evidence: 2.x answers GET /api/info with its
+   * version, 1.x answers GET /global/health with a JSON object. Any other
+   * answer (a web page, a 404, a half-open connection) usually means opencode
+   * is still starting, so nothing is remembered and ApiError(503,
+   * kind "upstream_starting") is thrown; the next call tries again.
+   */
   async apiVersion() {
     if (this._version) return this._version;
-    let version = "v1";
+    const passthrough = ["upstream_unreachable", "upstream_timeout", "upstream_auth"];
+    let version = null;
     try {
       const info = await this.request("GET", "/api/info", undefined, { timeout: 10, retries: 2 });
-      if (info && typeof info === "object" && info.version) version = "v2";
+      if (info && typeof info === "object" && !Array.isArray(info) && info.version) version = "v2";
     } catch (err) {
-      if (["upstream_unreachable", "upstream_timeout", "upstream_auth"].includes(err.kind)) throw err;
+      if (passthrough.includes(err.kind)) throw err;
+    }
+    if (!version) {
+      try {
+        const health = await this.request("GET", "/global/health", undefined, { timeout: 10 });
+        if (health && typeof health === "object" && !Array.isArray(health)) version = "v1";
+      } catch (err) {
+        if (passthrough.includes(err.kind)) throw err;
+      }
+    }
+    if (!version) {
+      throw new ApiError(
+        503,
+        `opencode at ${this.url} is not ready yet (its API answered neither as opencode 1.x nor as 2.x). ` +
+          "Try again in a moment.",
+        "upstream_starting"
+      );
     }
     this._version = version;
     return version;
@@ -134,7 +159,9 @@ class OpencodeClient {
       return { reachable: true, version: (info && info.version) || null };
     } catch (err) {
       if (err.kind === "upstream_auth") throw err;
-      if (["upstream_unreachable", "upstream_timeout"].includes(err.kind)) return { reachable: false, version: null };
+      if (["upstream_unreachable", "upstream_timeout", "upstream_starting"].includes(err.kind)) {
+        return { reachable: false, version: null };
+      }
       return { reachable: true, version: null };
     }
   }

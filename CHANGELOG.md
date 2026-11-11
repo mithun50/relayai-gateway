@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 
 ## [Unreleased]
 
+## [2026.11.12] - 2026-11-12
+
+### Fixed
+
+- opencode 2.x could be mistaken for opencode 1.x when relayai checked it in the first moments after starting it. The gateway then failed every request with `opencode returned HTTP 405 for POST /session` or `opencode has no API at ... (it sent a web page)` until it was restarted. relayai now decides the opencode version only from a clear answer (2.x's `/api/info` or 1.x's `/global/health`) and keeps waiting while opencode is still starting; a request that arrives in that moment gets a retryable 503 instead of a broken gateway. If you hit this on 2026.11.11, restart the gateway (`relayai stop` then `relayai start`, or Ctrl+C and `relayai serve`).
+- A garbled or half-open reply from opencode (possible while it starts) is now reported as "not reachable yet" instead of an unexpected error.
+
 ## [2026.11.11] - 2026-11-11
 
 ### Added

@@ -234,6 +234,10 @@ def main():
     if not ok:
         print("  ---- complete gateway output ----\n" + out + "\n  ---- end ----", flush=True)
 
+    # From here on the fake opencode starts slowly: /api/* answers 404 for its first 2 seconds.
+    # Regression test: relayai once took such an answer to mean "opencode 1.x" and kept that guess.
+    env["FAKE_OPENCODE_WARMUP"] = "2"
+
     print(f"== {args.impl}: managed opencode, background gateway (start / status / chat / stop)")
     gw_port, oc_port = free_port(), free_port()
     code, out, err = run("start", "--port", str(gw_port), "--opencode-bin", str(FAKE_BIN),
@@ -248,7 +252,8 @@ def main():
     key = (st.get("gateway") or {}).get("api_key", "")
     check("persistent api key was created", key.startswith("rai-") and Path(home, "api_key").is_file(), key)
     code, out, err = run("models", "--json")
-    check("models via the background gateway", code == 0 and "fake/toolbot" in out, out + err)
+    check("models via the background gateway (opencode 2.x detected despite a slow start)",
+          code == 0 and "fake/toolbot" in out, out + err)
     code, out, err = run("chat", "--no-stream", "Say PONG")
     check("chat one-shot", code == 0 and out.strip() == "PONG", out + err)
     code, out, err = run("chat", "Say PONG")
