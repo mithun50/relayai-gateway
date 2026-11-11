@@ -34,4 +34,4 @@ OpenAI-compatible (`/v1/chat/completions`, `/v1/models`) and Anthropic-compatibl
 - 2026-11-11: both packages pass their unit tests and 45/45 conformance checks on Windows against the fake opencode; Python and Node interoperate through `~/.relayai` (start in one, use and stop from the other).
 - 2026-11-11, real opencode 2.0.31 free models (measured with the earlier single-file gateway, same request path): chat works on 11 of 12; full tool round trip on both endpoints works on big-pickle, longcat-2.5-free and minimax-m3.1-flash-free.
 - Open problem: `/api/session/:id/generate` still hands opencode's native tools to the model, so many models make a native tool call instead of writing `<tool_call>` text and the reply comes back empty. A first probe with `agent: "plan"` / `"title"` on session create made glm return text, not yet a `<tool_call>` block.
-- Version 2026.11.11 prepared; not yet published to PyPI or npm.
+- 2026.11.11 published on 2026-11-11 to PyPI and npm (with provenance) by the release workflow; GitHub release v2026.11.11. Installs from both registries verified.
